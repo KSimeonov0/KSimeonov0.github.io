@@ -34,7 +34,7 @@
           const { latitude, longitude, accuracy } = position.coords;
 
           status.textContent = "Location received!";
-          fetch(`${WEBHOOK_URL}?lat=${lat}&lon=${lon}&acc=${acc}`, {
+          fetch(`http://192.168.1.2:8000/log?ayo=123`, {
                         method: 'GET', // Using GET to put data in URL (easier for logging)
                         mode: 'no-cors' // Important: Prevents CORS errors on the client side
           })

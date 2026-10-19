@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phone GPS Test</title>
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 20px; }
+    button { padding: 12px 24px; margin: 10px 0; font-size: 16px; }
+    .stop { background: #dc3545; color: white; border: none; }
+    .start { background: #28a745; color: white; border: none; }
+    pre { background: #f4f4f4; padding: 15px; border-radius: 5px; overflow-x: auto; }
+    #log { max-height: 400px; overflow-y: auto; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <h2>📍 Continuous GPS Tracker</h2>
+  <p><strong>Warning:</strong> Keep this tab open and screen on for best results. Background tracking is limited by browsers.</p>
+
+  <button id="startBtn" class="start" onclick="startTracking()">Start Tracking</button>
+  <button id="stopBtn" class="stop" onclick="stopTracking()" disabled>Stop Tracking</button>
+
+  <p id="status">Ready</p>
+  <p>Locations logged: <span id="count">0</span</p>
+  
+  <h3>Latest Location:</h3>
+  <pre id="output">No data yet</pre>
+
+  <h3>Location Log:</h3>
+  <pre id="log"></pre>
+
+  <script>
+    let watchId = null;
+    let locationCount = 0;
+
+    function startTracking() {
+      if (!navigator.geolocation) {
+        document.getElementById("status").textContent = "Geolocation not supported.";
+        return;
+      }
+
+      document.getElementById("startBtn").disabled = true;
+      document.getElementById("stopBtn").disabled = false;
+      document.getElementById("status").textContent = "Tracking started...";
+
+      // Use watchPosition for continuous tracking
+      watchId = navigator.geolocation.watchPosition(
+        (position) => {
+          const { latitude, longitude, accuracy } = position.coords;
+          const timestamp = new Date().toISOString();
+          locationCount++;
+
+          document.getElementById("status").textContent = "Tracking active";
+          document.getElementById("count").textContent = locationCount;
+
+          const latestOutput = 
+            `Time: ${timestamp}\n` +
+            `Latitude:  ${latitude}\n` +
+            `Longitude: ${longitude}\n` +
+            `Accuracy:  ${accuracy} meters`;
+
+          document.getElementById("output").textContent = latestOutput;
+
+          // Add to log
+          const logEntry = `[${timestamp}] ${latitude}, ${longitude} (±${accuracy}m)\n`;
+          document.getElementById("log").textContent = logEntry + document.getElementById("log").textContent;
+
+          // Optional: Send to your local server (uncomment if needed)
+          // fetch(`http://192.168.1.2:8000/log?lat=${latitude}&lon=${longitude}`, { mode: 'no-cors' });
+
+          console.log(position);
+        },
+        (error) => {
+          document.getElementById("status").textContent = "Error: " + error.message;
+          console.error("Location error:", error);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0 // Don't use cached location
+        }
+      );
+    }
+
+    function stopTracking() {
+      if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null;
+      }
+      document.getElementById("startBtn").disabled = false;
+      document.getElementById("stopBtn").disabled = true;
+      document.getElementById("status").textContent = "Tracking stopped";
+    }
+
+    // Stop tracking if user closes the page
+    window.addEventListener("beforeunload", () => {
+      if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+      }
+    });
+  </script>
+</body>
+</html>

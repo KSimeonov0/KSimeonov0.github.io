@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phone GPS Test</title>
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 20px; }
+    button { padding: 12px 24px; margin: 10px 0; font-size: 16px; }
+    .stop { background: #dc3545; color: white; border: none; }
+    .start { background: #28a745; color: white; border: none; }
+    pre { background: #f4f4f4; padding: 15px; border-radius: 5px; overflow-x: auto; }
+    #log { max-height: 400px; overflow-y: auto; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <h2>📍 GPS Tracker (5-second intervals)</h2>
+  <p><strong>Warning:** Keep this tab open and screen on. Background tracking is limited by browsers.</p>
+
+  <label>
+    Interval (seconds): 
+    <input type="number" id="intervalInput" value="5" min="1" max="3600">
+  </label>
+  
+  <button id="startBtn" class="start" onclick="startTracking()">Start Tracking</button>
+  <button id="stopBtn" class="stop" onclick="stopTracking()" disabled>Stop Tracking</button>
+
+  <p id="status">Ready</p>
+  <p>Locations logged: <span id="count">0</span</p>
+  
+  <h3>Latest Location:</h3>
+  <pre id="output">No data yet</pre>
+
+  <h3>Location Log:</h3>
+  <pre id="log"></pre>
+
+  <script>
+    let trackingTimer = null;
+    let locationCount = 0;
+    let isTracking = false;
+
+    function startTracking() {
+      if (!navigator.geolocation) {
+        document.getElementById("status").textContent = "Geolocation not supported.";
+        return;
+      }
+
+      const intervalSeconds = parseInt(document.getElementById("intervalInput").value) || 5;
+      const intervalMs = intervalSeconds * 1000;
+
+      document.getElementById("startBtn").disabled = true;
+      document.getElementById("stopBtn").disabled = false;
+      document.getElementById("status").textContent = `Tracking started (every ${intervalSeconds}s)`;
+      isTracking = true;
+
+      function getLocation() {
+        if (!isTracking) return;
+
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            if (!isTracking) return;
+
+            const { latitude, longitude, accuracy } = position.coords;
+            const timestamp = new Date().toISOString();
+            locationCount++;
+
+            document.getElementById("status").textContent = `Tracking active (next in ${intervalSeconds}s)`;
+            document.getElementById("count").textContent = locationCount;
+
+            const latestOutput = 
+              `Time: ${timestamp}\n` +
+              `Latitude:  ${latitude}\n` +
+              `Longitude: ${longitude}\n` +
+              `Accuracy:  ${accuracy} meters`;
+
+            document.getElementById("output").textContent = latestOutput;
+
+            const logEntry = `[${timestamp}] ${latitude}, ${longitude} (±${accuracy}m)\n`;
+            document.getElementById("log").textContent = logEntry + document.getElementById("log").textContent;
+
+            console.log(position);
+          },
+          (error) => {
+            document.getElementById("status").textContent = `Error: ${error.message}`;
+            console.error("Location error:", error);
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+          }
+        );
+
+        // Schedule next request
+        if (isTracking) {
+          trackingTimer = setTimeout(getLocation, intervalMs);
+        }
+      }
+
+      // Start immediately, then repeat
+      getLocation();
+    }
+
+    function stopTracking() {
+      isTracking = false;
+      if (trackingTimer !== null) {
+        clearTimeout(trackingTimer);
+        trackingTimer = null;
+      }
+      document.getElementById("startBtn").disabled = false;
+      document.getElementById("stopBtn").disabled = true;
+      document.getElementById("status").textContent = "Tracking stopped";
+    }
+
+    window.addEventListener("beforeunload", () => {
+      stopTracking();
+    });
+  </script>
+</body>
+</html>

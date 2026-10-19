@@ -32,8 +32,6 @@
   <pre id="output">No data yet</pre>
 
   <h3>Location Log:</h3>
-  <button onclick="copyLog()" style="margin-left: 10px; padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px;">Copy Log</button>
-
   <pre id="log"></pre>
 
   <script>
@@ -117,16 +115,6 @@
     window.addEventListener("beforeunload", () => {
       stopTracking();
     });
-
-    function copyLog() {
-      const logText = document.getElementById("log").textContent;
-      if (!logText || logText.trim() === "") {
-        alert("No log data to copy");
-        return;
-      }
-      navigator.clipboard.writeText(logText)
-    }
-
   </script>
 </body>
 </html>

@@ -92,7 +92,7 @@
                   timestamp: timestamp
                 })
               }).catch(error => {
-                console.error("Failed to send location:", error);
+                document.getElementById("status").textContent = `Error123: ${error.message}`;
               });
           },
           (error) => {

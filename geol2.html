@@ -26,6 +26,7 @@
   <button id="stopBtn" class="stop" onclick="stopTracking()" disabled>Stop Tracking</button>
 
   <p id="status">Ready</p>
+  <p id="error_place"> Error Placeholder</p>
   <p>Locations logged: <span id="count">0</span></p>
   
   <h3>Latest Location:</h3>
@@ -92,7 +93,7 @@
                   timestamp: timestamp
                 })
               }).catch(error => {
-                document.getElementById("status").textContent = `Error123: ${error.message}`;
+                document.getElementById("error_place").textContent = `Error fetch: ${error.message}`;
               });
           },
           (error) => {
